@@ -45,8 +45,7 @@ class CommentForm extends Component
     }
     handleSubmit(values) {
         this.toggleModal();
-        console.log('Current State is: ' + JSON.stringify(values));
-        alert('Current State is: ' + JSON.stringify(values));
+        this.props.addComment(this.props.dishId, values.rating, values.author, values.comment);
     }
     render()
     {
@@ -89,17 +88,25 @@ class CommentForm extends Component
     }
 }
 
-function  RenderComments({comment_ob_arr}) {
+function  RenderComments({comment_ob_arr, addComment, dishId}) {
         if (comment_ob_arr != null) {
-            const comm = comment_ob_arr.map((comment_obj) => {
-                return (
-                    <div>
-                        <li className="list-unstyled">{comment_obj.comment}</li><br></br>
-                        <li className="list-unstyled">--{comment_obj.author} , {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit'}).format(new Date(Date.parse(comment_obj.date)))}</li><br></br>
-                    </div>
-                );
-            });
-            return comm;
+            return(
+                 
+                        <div>
+                            <h4>Comments</h4>
+                            <ul className="list-unstyled">
+                                {comment_ob_arr.map((comment_obj) => {
+                                    return(
+                                        <li key={comment_obj.id}>
+                                            <p>{comment_obj.comment}</p>
+                                            <p>--{comment_obj.author} , {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit'}).format(new Date(Date.parse(comment_obj.date)))}</p>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                            <CommentForm dishId={dishId} addComment={addComment} />
+                        </div>
+                  );
         } else {
             return (
                 <div></div>
@@ -127,10 +134,7 @@ function  RenderComments({comment_ob_arr}) {
                         <RenderDish dish={props.dish} />
                     </div>
                     <div className="col-12 col-md-5 m-1">
-                        <h3>Comments</h3>
-                        <RenderComments comment_ob_arr={props.comments} />
-                        <CommentForm />
-
+                        <RenderComments comment_ob_arr={props.comments} addComment={props.addComment} dishId={props.dish.id} />
                     </div>
                 </div>
                 </div>
