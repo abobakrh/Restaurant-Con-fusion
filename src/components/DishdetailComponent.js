@@ -1,8 +1,11 @@
-import React from 'react';
-import { Card, CardImg, CardText, CardBody,
-    CardTitle, Breadcrumb, BreadcrumbItem } from 'reactstrap';
+import React, { Component } from 'react';
+import {Button, Card, CardImg, CardText, CardBody,
+    CardTitle, Breadcrumb, BreadcrumbItem, Modal , ModalBody , ModalHeader, Row, Col, Label} from 'reactstrap';
 import { Link } from 'react-router-dom';
+import { Control, LocalForm, Errors } from 'react-redux-form';
 
+const maxLength = (len) => (val) => !(val) || (val.length <= len);
+const minLength = (len) => (val) => val && (val.length >= len);
 
 function  RenderDish({dish}) {
         if (dish != null) {
@@ -15,15 +18,76 @@ function  RenderDish({dish}) {
                     </CardBody>
                 </Card>
             );
-
         }
         else
             return (
                 <div></div >
             );
-
-
     }
+
+class CommentForm extends Component
+{
+    constructor(props)
+    {
+        super(props);
+        this.state = 
+        {
+            isModalOpen : false
+        };
+    this.toggleModal = this.toggleModal.bind(this);   
+    this.handleSubmit = this.handleSubmit.bind(this);
+    }
+    toggleModal()
+     {
+        this.setState({
+          isModalOpen: !this.state.isModalOpen
+        });
+    }
+    handleSubmit(values) {
+        this.toggleModal();
+        console.log('Current State is: ' + JSON.stringify(values));
+        alert('Current State is: ' + JSON.stringify(values));
+    }
+    render()
+    {
+        return(
+            <>
+            <Button onClick={this.toggleModal} outline color="secondary"> <i className="fa fa-pencil"></i> Submit Comment</Button>
+            <Modal isOpen={this.state.isModalOpen} toggle={this.toggleModal}>
+            <ModalHeader toggle={this.toggleModal}>Submit Comment</ModalHeader>
+            <ModalBody>
+                <LocalForm onSubmit={(values) => this.handleSubmit(values)}>
+                    <Row className="form-group">
+                        <Col md={12}>
+                            <Label htmlfor="rating" md={2}><strong>Rating</strong></Label>
+                            <Control.select model=".rating" id="rating" name="rating" className="form-control" ><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></Control.select>
+                        </Col>
+                    </Row>
+                    <Row className="form-group">
+                        <Col md={12}>
+                            <Label htmlFor="authorname" md={4}><strong>Your Name</strong></Label>
+                            <Control.text model=".authorname" name="authorname" className="form-control" placeholder="Your Name" validators={{minLength: minLength(3), maxLength: maxLength(15)}}></Control.text>
+                            <Errors className="text-danger" model=".authorname" show="touched" messages={{minLength:'Must be greater than 2 characters',maxLength:'Must be 15 characters or less'}}></Errors>
+                        </Col>
+                    </Row>
+                    <Row className="form-group">
+                        <Col md={12}>
+                            <Label htmlFor="comment" md={2}><strong>Comment</strong></Label>
+                            <Control.textarea rows="6" model=".comment" name="comment" className="form-control"></Control.textarea>
+                        </Col>
+                    </Row>
+                    <Row className="form-group">
+                        <Col md={12}>
+                            <Button type="submit" color="primary">Submit</Button>
+                        </Col>
+                    </Row>
+                </LocalForm>
+            </ModalBody>
+        </Modal>
+        </>
+        );
+    }
+}
 
 function  RenderComments({comment_ob_arr}) {
         if (comment_ob_arr != null) {
@@ -33,7 +97,6 @@ function  RenderComments({comment_ob_arr}) {
                         <li className="list-unstyled">{comment_obj.comment}</li><br></br>
                         <li className="list-unstyled">--{comment_obj.author} , {new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: '2-digit'}).format(new Date(Date.parse(comment_obj.date)))}</li><br></br>
                     </div>
-
                 );
             });
             return comm;
@@ -66,6 +129,8 @@ function  RenderComments({comment_ob_arr}) {
                     <div className="col-12 col-md-5 m-1">
                         <h3>Comments</h3>
                         <RenderComments comment_ob_arr={props.comments} />
+                        <CommentForm />
+
                     </div>
                 </div>
                 </div>
